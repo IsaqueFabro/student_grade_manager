@@ -9,7 +9,8 @@ const grades = [
     {
         studentName: "Isaque", // nome do aluno
         subject: "Mathematics", // matéria
-        grade: "9.2" // nota
+        grade: "9.2", // nota
+        team: "1A", // turma
     }
 ];
 
@@ -43,7 +44,8 @@ const server = http.createServer((request, response) => {
                 id: v4(), // id único
                 studentName, // nome do aluno
                 subject, // matéria
-                grade // nota
+                grade, // nota
+                team // turma
             };
             // adiciona a nova nota ao array
             grades.push(newGrade);

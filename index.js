@@ -2,6 +2,7 @@
 import http from "http";
 // importa a função v4 da biblioteca 'uuid', usada para gerar IDs únicos
 import { v4 } from "uuid";
+
 // define a porta onde o servidor vai escutar as requisições
 const port = 3000;
 // array simulando um "banco de dados" com notas de alunos
@@ -9,25 +10,23 @@ const grades = [];
 
 // cria o servidor HTTP
 const server = http.createServer((request, response) => {
-  // desestrutura o método (GET, POST, etc.) e a URL (rota) da requisição
   const { method, url } = request;
-  // variável que irá armazenar os dados enviados no corpo da requisição (usado no POST)
   let body = "";
 
-  // evento 'data' é disparado toda vez que um pedaço (chunk) do corpo da requisição chega
   request.on("data", (chunk) => {
-    body += chunk.toString(); // concatena os pedaços em uma string completa
+    body += chunk.toString();
   });
 
-  // evento 'end' é disparado quando todos os dados da requisição já foram recebidos
   request.on("end", () => {
-    // verifica se a requisição é um GET para a rota /grades
+    const id = url.split("/")[2];
+
+    // rota GET /grades
     if (url === "/grades" && method === "GET") {
       response.writeHead(200, { "Content-Type": "application/json" });
       response.end(JSON.stringify(grades));
     }
 
-    // verifica se a requisição é um POST para a rota /grades
+    // rota POST /grades
     else if (url === "/grades" && method === "POST") {
       try {
         const { studentName, subject, grade } = JSON.parse(body);
@@ -49,7 +48,21 @@ const server = http.createServer((request, response) => {
       }
     }
 
-    // se nenhuma das rotas acima for atendida, retorna 404 (rota não encontrada)
+    // rota DELETE /grades/:id
+    else if (url.startsWith("/grades/") && method === "DELETE") {
+      const index = grades.findIndex((g) => g.id === id);
+
+      if (index !== -1) {
+        const deleted = grades.splice(index, 1);
+        response.writeHead(200, { "Content-Type": "application/json" });
+        response.end(JSON.stringify(deleted[0]));
+      } else {
+        response.writeHead(404, { "Content-Type": "application/json" });
+        response.end(JSON.stringify({ message: "Grade not found" }));
+      }
+    }
+
+    // rota não encontrada
     else {
       response.writeHead(404, { "Content-Type": "application/json" });
       response.end(JSON.stringify({ message: "Route not found" }));

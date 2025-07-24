@@ -1,5 +1,4 @@
 import http from "http";
-import { start } from "repl";
 import { v4 } from "uuid";
 
 const port = 3000;
@@ -34,13 +33,23 @@ const server = http.createServer((request, response) => {
         gradeToUpdate.grade = grade;
         response.writeHead(200, { "Content-Type": "application/json" });
         response.end(JSON.stringify(gradeToUpdate));
-      } else { 
-      response.writeHead(200, { "Content-Type": "application/json" });
-      response.end(JSON.stringify(gradeToUpdate));
+      } else {
+        response.writeHead(404, { "Content-Type": "application/json" });
+        response.end(JSON.stringify({ message: "Grade not found" }));
+      }
+    } else if (url.startsWith("/grades/") && method === "DELETE") {
+      const index = grades.findIndex((g) => g.id === id);
+      if (index !== -1) {
+        grades.splice(index, 1);
+        response.writeHead(204);
+        response.end();
+      } else {
+        response.writeHead(404, { "Content-Type": "application/json" });
+        response.end(JSON.stringify({ message: "Grade not found" }));
       }
     } else {
       response.writeHead(404, { "Content-Type": "application/json" });
-      response.end(JSON.stringify({ message: "Grade not found" }));
+      response.end(JSON.stringify({ message: "Route not found" }));
     }
   });
 });
